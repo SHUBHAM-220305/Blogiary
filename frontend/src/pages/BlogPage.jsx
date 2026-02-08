@@ -169,16 +169,18 @@ function BlogPage() {
                     {blogData.creator.name}
                   </h2>
                 </Link>
-                <p
-                  className="px-2 py-1 bg-black rounded-full text-white text-sm sm:text-base cursor-pointer"
-                  onClick={() =>
-                    handleFollowCreator(blogData.creator._id, token)
-                  }
-                >
-                  {blogData.creator.followers.includes(userId)
-                    ? "Unfollow"
-                    : "Follow"}
-                </p>
+                {blogData.creator._id !== userId && (
+                  <p
+                    className="px-2 py-1 bg-black rounded-full text-white text-sm sm:text-base cursor-pointer"
+                    onClick={() =>
+                      handleFollowCreator(blogData.creator._id, token)
+                    }
+                  >
+                    {blogData.creator.followers.includes(userId)
+                      ? "Unfollow"
+                      : "Follow"}
+                  </p>
+                )}
               </div>
               <div className="flex gap-2">
                 <span>{calculateReadTime(blogData.content)}</span>
