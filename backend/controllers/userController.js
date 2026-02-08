@@ -265,6 +265,11 @@ async function googleAuth(req, res) {
             id: user._id,
             name: user.name,
             email: user.email,
+            profilePic: user.profilePic,
+            username: user.username,
+            bio: user.bio,
+            showLikedBlogs: user.showLikedBlogs,
+            showSavedBlogs: user.showSavedBlogs,
             token,
           },
         });
@@ -277,11 +282,14 @@ async function googleAuth(req, res) {
       }
     }
 
+    const username = email.split("@")[0] + randomUUID();
+
     let newUser = await User.create({
       name,
       email,
       googleAuth: true,
       verify: true,
+      username,
     });
 
     let token = await generateJWT({
