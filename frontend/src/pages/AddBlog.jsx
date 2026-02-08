@@ -390,7 +390,7 @@ function AddBlog() {
       </div>
 
       <button
-        disabled={uploading}
+        disabled={isLoading}
         className="text-white text-lg p-2 px-7 rounded-lg font-semibold focus:outline-none bg-black"
         onClick={id ? handleUpdateBlog : handlePostBlog}
       >
