@@ -20,7 +20,7 @@ function Search() {
   const { blogs, hasMore } = usePagination("search-blogs", query, 3, page);
 
   return (
-    <div className="w-full p-5 sm:w-[80%] md:[60%] lg:[55%] mx-auto">
+    <div className="w-full p-5 sm:w-[80%] md:w-[60%] lg:w-[55%] mx-auto">
       <h1 className="text-4xl md:text-6xl font-bold my-10">
         <span className="text-black/60">Results for</span>
         <span className="text-black"> {tag ? tag : searchQuery}</span>
