@@ -9,7 +9,7 @@ import VerifyUser from "./components/VerifyUser";
 import ProfilePage from "./pages/ProfilePage";
 import EditProfile from "./pages/EditProfile";
 import Search from "./components/Search";
-import Settings from "./components/settings";
+import Settings from "./components/Settings";
 import ForgotPassword from "./components/ForgotPassword";
 import ResetPassword from "./components/ResetPassword";
 
