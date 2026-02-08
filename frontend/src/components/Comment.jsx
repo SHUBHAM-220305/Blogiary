@@ -52,7 +52,7 @@ function Comment() {
   }, []);
 
   return (
-    <div className="bg-white h-screen p-5 fixed top-0 right-0 w-[400px] border-l shadow-xl overflow-y-scroll">
+    <div className="bg-white mt-14 h-screen p-5 fixed top-0 right-0 w-[400px] border-l shadow-xl overflow-y-scroll">
       <div className="flex justify-between items-center">
         <h1 className="text-xl font-medium">Comment ({comments.length})</h1>
         <i
