@@ -304,6 +304,11 @@ async function googleAuth(req, res) {
         id: newUser._id,
         name: newUser.name,
         email: newUser.email,
+        profilePic: newUser.profilePic,
+        username: newUser.username,
+        bio: newUser.bio,
+        showLikedBlogs: newUser.showLikedBlogs,
+        showSavedBlogs: newUser.showSavedBlogs,
         token,
       },
     });
@@ -344,10 +349,6 @@ async function getUserById(req, res) {
         select: "name username profilePic",
       })
       .select("-password -verify -__v -email -googleAuth");
-
-    // if(!user.showLikeBlogs) {
-
-    // }
 
     if (!user) {
       return res.status(404).json({
