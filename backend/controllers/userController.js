@@ -303,7 +303,7 @@ async function googleAuth(req, res) {
     return res.status(400).json({
       success: false,
       message: "Please try again",
-      error: err.message,
+      error: error.message,
     });
   }
 }
