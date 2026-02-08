@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
 const User = require("../models/userSchema");
+const Comment = require("../models/commentSchema");
 const bcrypt = require("bcrypt");
 const {
   generateJWT,
@@ -32,6 +32,7 @@ const {
   EMAIL_USER,
   FRONTEND_URL,
 } = require("../config/dotenv.config");
+const Blog = require("../models/blogSchema");
 
 admin.initializeApp({
   credential: admin.credential.cert({
@@ -432,14 +433,7 @@ async function deleteUser(req, res) {
   try {
     const { id } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid user ID",
-      });
-    }
-
-    const deletedUser = await User.findByIdAndDelete(id);
+    const deletedUser = await User.findById(id);
 
     if (!deletedUser) {
       return res.status(404).json({
@@ -447,15 +441,65 @@ async function deleteUser(req, res) {
         message: "User not found",
       });
     }
+
+    const userBlogs = await Blog.find({ creator: id });
+
+    for (const blog of userBlogs) {
+      if (blog.imageId) {
+        await deleteImageFromCloudinary(blog.imageId);
+      }
+
+      if (blog.content?.blocks?.length) {
+        for (const block of blog.content.blocks) {
+          if (block.type === "image" && block.data?.file?.imageId) {
+            await deleteImageFromCloudinary(block.data.file.imageId);
+          }
+        }
+      }
+
+      await Comment.deleteMany({ blog: blog._id });
+
+      await User.updateMany(
+        {
+          $or: [{ likeBlogs: blog._id }, { saveBlogs: blog._id }],
+        },
+        {
+          $pull: {
+            likeBlogs: blog._id,
+            saveBlogs: blog._id,
+          },
+        },
+      );
+    }
+
+    await Blog.deleteMany({ creator: id });
+
+    await Comment.deleteMany({ user: id });
+
+    await User.updateMany({ followers: id }, { $pull: { followers: id } });
+
+    await User.updateMany({ following: id }, { $pull: { following: id } });
+
+    if (deletedUser.profilePicId) {
+      await deleteImageFromCloudinary(deletedUser.profilePicId);
+    }
+
+    if (deletedUser.googleAuth) {
+      const firebaseUser = await admin.auth().getUserByEmail(deletedUser.email);
+      await admin.auth().deleteUser(firebaseUser.uid);
+    }
+
+    await User.findByIdAndDelete(id);
+
     return res.status(200).json({
       success: true,
       message: "User deleted successfully",
-      deletedUser,
     });
   } catch (err) {
     return res.status(400).json({
       success: false,
       message: "Please try again",
+      error: err.message,
     });
   }
 }

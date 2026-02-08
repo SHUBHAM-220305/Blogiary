@@ -181,13 +181,6 @@ async function getBlog(req, res) {
   try {
     const { blogId } = req.params;
 
-    // if (!mongoose.Types.ObjectId.isValid(id)) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: "Invalid user ID",
-    //   });
-    // }
-
     const blog = await Blog.findOne({ blogId })
       .populate({
         path: "comments",
