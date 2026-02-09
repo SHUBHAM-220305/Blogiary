@@ -17,6 +17,9 @@ import { calculateReadTime } from "../utils/calculateReadTime";
 export async function handleSaveBlogs(e, id, token) {
   e.preventDefault();
   e.stopPropagation();
+  if (!token) {
+    return toast.error("Please sign in to save blogs");
+  }
   try {
     let res = await axios.patch(
       import.meta.env.VITE_BACKEND_URL + `/save-blog/${id}`,
@@ -34,6 +37,7 @@ export async function handleSaveBlogs(e, id, token) {
 }
 
 export async function handleFollowCreator(id, token) {
+  const dispatch = useDispatch();
   try {
     let res = await axios.patch(
       import.meta.env.VITE_BACKEND_URL + `/follow/${id}`,
@@ -73,9 +77,7 @@ function BlogPage() {
       } = await axios.get(import.meta.env.VITE_BACKEND_URL + `/blogs/${id}`);
       setBlogData(blog);
 
-      if (blog.likes.includes(userId)) {
-        setIsLike((prev) => !prev);
-      }
+      setIsLike(blog.likes.includes(userId));
 
       dispatch(addSelectedBlog(blog));
     } catch (error) {
@@ -86,7 +88,6 @@ function BlogPage() {
   async function handleLike() {
     if (token) {
       try {
-        setIsLike((prev) => !prev);
         let res = await axios.post(
           import.meta.env.VITE_BACKEND_URL + `/blogs/like/${blogData._id}`,
           {},
@@ -96,6 +97,7 @@ function BlogPage() {
             },
           },
         );
+        setIsLike((prev) => !prev);
         dispatch(changeLikes(userId));
         toast.success(res.data.message);
       } catch (error) {
@@ -130,12 +132,7 @@ function BlogPage() {
     fetchBlogById();
     return () => {
       dispatch(setIsOpen(false));
-      if (
-        window.location.pathname !== `/edit/${id}` &&
-        window.location.pathname !== `/blog/${id}`
-      ) {
-        dispatch(removeSelectedBlog());
-      }
+      dispatch(removeSelectedBlog());
     };
   }, [id]);
 
@@ -272,11 +269,12 @@ function BlogPage() {
           </div>
 
           <div className="my-10">
-            {content.blocks.map((block) => {
+            {content?.blocks?.map((block, index) => {
               if (block.type == "header") {
                 if (block.data.level == 2) {
                   return (
                     <h2
+                      key={index}
                       className="font-bold text-4xl my-4"
                       dangerouslySetInnerHTML={{ __html: block.data.text }}
                     ></h2>
@@ -284,6 +282,7 @@ function BlogPage() {
                 } else if (block.data.level == 3) {
                   return (
                     <h3
+                      key={index}
                       className="font-bold text-3xl my-4"
                       dangerouslySetInnerHTML={{ __html: block.data.text }}
                     ></h3>
@@ -291,6 +290,7 @@ function BlogPage() {
                 } else if (block.data.level == 4) {
                   return (
                     <h4
+                      key={index}
                       className="font-bold text-2xl my-4"
                       dangerouslySetInnerHTML={{ __html: block.data.text }}
                     ></h4>
@@ -299,13 +299,14 @@ function BlogPage() {
               } else if (block.type == "paragraph") {
                 return (
                   <p
+                    key={index}
                     className="my-4"
                     dangerouslySetInnerHTML={{ __html: block.data.text }}
                   ></p>
                 );
               } else if (block.type == "image") {
                 return (
-                  <div className="my-4">
+                  <div key={index} className="my-4">
                     <img src={block.data.file.url} alt="" />
                     <p className="text-center my-2">{block.data.caption}</p>
                   </div>

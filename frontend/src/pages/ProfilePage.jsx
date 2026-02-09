@@ -6,10 +6,13 @@ import { Link, Navigate, useLocation, useParams } from "react-router-dom";
 import { handleFollowCreator } from "./BlogPage";
 import { useSelector } from "react-redux";
 import DisplayBlogs from "../components/DisplayBlogs";
+import useLoader from "../hooks/useLoader";
 
 function ProfilePage() {
   const { username } = useParams();
   const [userData, setUserData] = useState(null);
+  const [isLoading, startLoading, stopLoading] = useLoader();
+  const [error, setError] = useState(null);
   const location = useLocation();
 
   const {
@@ -54,16 +57,22 @@ function ProfilePage() {
         </>
       );
     }
+    return null;
   }
 
   async function fetchUserDetails() {
+    startLoading();
+    setError(null);
     try {
       let res = await axios.get(
         import.meta.env.VITE_BACKEND_URL + `/users/${username.split("@")[1]}`,
       );
       setUserData(res.data.user);
     } catch (error) {
+      setError("Failed to load profile");
       toast.error(error.response.data.message);
+    } finally {
+      stopLoading();
     }
   }
 
@@ -73,7 +82,9 @@ function ProfilePage() {
 
   return (
     <div className="w-full flex justify-center">
-      {userData ? (
+      {isLoading && <h1>Loading...</h1>}
+      {error && <h1 className="text-red-500">{error}</h1>}
+      {!isLoading && !error && userData && (
         <div className="w-[80%] flex max-lg:flex-col-reverse justify-evenly">
           <div className="w-full lg:w-[55%]">
             <div className="justify-between my-10 hidden lg:flex">
@@ -83,7 +94,7 @@ function ProfilePage() {
 
             <div className="my-4">
               <nav className="my-4">
-                <ul className="flex gap-6">
+                <ul className="flex gap-6 overflow-x-auto whitespace-nowrap">
                   <li>
                     <Link
                       to={`/${username}`}
@@ -129,7 +140,7 @@ function ProfilePage() {
             </div>
           </div>
 
-          <div className="w-full lg:w-[25%] lg:border-l lg:pl-10 lg:sticky top-0 self-start lg:min-h-[calc(100vh_-_70px)]">
+          <div className="w-full lg:w-[25%] lg:border-l lg:pl-10 lg:sticky lg:top-0 self-start lg:min-h-[calc(100vh_-_70px)]">
             <div className="my-10">
               <div className="w-20 h-20 cursor-pointer overflow-hidden hover:bg-gray-200 rounded-full">
                 <img
@@ -139,7 +150,7 @@ function ProfilePage() {
                       : `https://api.dicebear.com/9.x/initials/svg?seed=${userData.name}`
                   }
                   alt=""
-                  className="w-full h-full rounded-full object-contain border"
+                  className="w-full h-full rounded-full object-cover border"
                 />
               </div>
 
@@ -164,7 +175,8 @@ function ProfilePage() {
                   onClick={() => handleFollowCreator(userData._id, token)}
                 >
                   {userData.followers.some(
-                    (followerId) => followerId._id == userId,
+                    (follower) =>
+                      follower === userId || follower?._id === userId,
                   )
                     ? "Unfollow"
                     : "Follow"}
@@ -205,8 +217,6 @@ function ProfilePage() {
             </div>
           </div>
         </div>
-      ) : (
-        <h1>Loading......</h1>
       )}
     </div>
   );
