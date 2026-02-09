@@ -7,12 +7,14 @@ import {
   addSelectedBlog,
   changeLikes,
   removeSelectedBlog,
+  toggleSave,
 } from "../utils/selectedBlogSlice";
 import Comment from "../components/Comment";
 import { setIsOpen } from "../utils/commentSlice";
 import { formatDate } from "../utils/formatDate";
 import { updateData } from "../utils/userSlice";
 import { calculateReadTime } from "../utils/calculateReadTime";
+import { toggleFollowUser } from "../utils/userThunks";
 
 export async function handleSaveBlogs(e, id, token) {
   e.preventDefault();
@@ -31,25 +33,6 @@ export async function handleSaveBlogs(e, id, token) {
       },
     );
     toast.success(res.data.message);
-  } catch (error) {
-    toast.error(error.response.data.message);
-  }
-}
-
-export async function handleFollowCreator(id, token) {
-  const dispatch = useDispatch();
-  try {
-    let res = await axios.patch(
-      import.meta.env.VITE_BACKEND_URL + `/follow/${id}`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    );
-    toast.success(res.data.message);
-    dispatch(updateData(["followers", id]));
   } catch (error) {
     toast.error(error.response.data.message);
   }
@@ -108,6 +91,33 @@ function BlogPage() {
     }
   }
 
+  async function handleSave(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!token) {
+      return toast.error("Please sign in to save blogs");
+    }
+
+    dispatch(toggleSave(userId));
+
+    try {
+      const res = await axios.patch(
+        import.meta.env.VITE_BACKEND_URL + `/save-blog/${blogData._id}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      toast.success(res.data.message);
+    } catch (error) {
+      dispatch(toggleSave(userId));
+      toast.error(error.response?.data?.message);
+    }
+  }
+
   async function handleDeleteBlog() {
     try {
       const res = await axios.delete(
@@ -126,6 +136,11 @@ function BlogPage() {
     } finally {
       setShowDeleteModal(false);
     }
+  }
+
+  async function handleFollow(followUserId) {
+    if (!token) return toast.error("Please sign in");
+    dispatch(toggleFollowUser({ followUserId, token }));
   }
 
   useEffect(() => {
@@ -170,7 +185,7 @@ function BlogPage() {
                   <p
                     className="px-2 py-1 bg-black rounded-full text-white text-sm sm:text-base cursor-pointer"
                     onClick={() =>
-                      handleFollowCreator(blogData.creator._id, token)
+                      handleFollow(blogData.creator._id)
                     }
                   >
                     {blogData.creator.followers.includes(userId)
@@ -255,10 +270,7 @@ function BlogPage() {
               <p className="text-3xl">{comments.length}</p>
             </div>
 
-            <div
-              className="cursor-pointer flex gap-2"
-              onClick={(e) => handleSaveBlogs(e, blogData._id, token)}
-            >
+            <div className="cursor-pointer flex gap-2" onClick={handleSave}>
               {totalSaves?.includes(userId) ? (
                 <i className="fi fi-sr-bookmark text-3xl mt-1"></i>
               ) : (

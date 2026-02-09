@@ -3,10 +3,10 @@ import { useEffect } from "react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { Link, Navigate, useLocation, useParams } from "react-router-dom";
-import { handleFollowCreator } from "./BlogPage";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import DisplayBlogs from "../components/DisplayBlogs";
 import useLoader from "../hooks/useLoader";
+import { toggleFollowUser } from "../utils/userThunks";
 
 function ProfilePage() {
   const { username } = useParams();
@@ -14,6 +14,7 @@ function ProfilePage() {
   const [isLoading, startLoading, stopLoading] = useLoader();
   const [error, setError] = useState(null);
   const location = useLocation();
+  const dispatch = useDispatch();
 
   const {
     token,
@@ -74,6 +75,11 @@ function ProfilePage() {
     } finally {
       stopLoading();
     }
+  }
+
+  async function handleFollow(followUserId) {
+    if (!token) return toast.error("Please sign in");
+    dispatch(toggleFollowUser({ followUserId, token }));
   }
 
   useEffect(() => {
@@ -172,7 +178,7 @@ function ProfilePage() {
               ) : (
                 <button
                   className="px-3 py-1 bg-black rounded-full text-white text-base cursor-pointer max-lg:w-full"
-                  onClick={() => handleFollowCreator(userData._id, token)}
+                  onClick={() => handleFollow(userData._id)}
                 >
                   {userData.followers.some(
                     (follower) =>

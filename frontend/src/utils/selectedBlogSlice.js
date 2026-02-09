@@ -35,6 +35,13 @@ const selectedBlogSlice = createSlice({
       return state;
     },
 
+    toggleSave: (state, action) => {
+      const userId = action.payload;
+      const index = state.totalSaves.indexOf(userId);
+      if (index === -1) state.totalSaves.push(userId);
+      else state.totalSaves.splice(index, 1);
+    },
+
     setComments(state, action) {
       state.comments = [...state.comments, action.payload];
     },
@@ -144,5 +151,6 @@ export const {
   setReplies,
   setUpdatedComments,
   deleteCommentAndReply,
+  toggleSave,
 } = selectedBlogSlice.actions;
 export default selectedBlogSlice.reducer;
