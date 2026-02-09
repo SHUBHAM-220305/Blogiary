@@ -3,15 +3,43 @@ import { Link } from "react-router-dom";
 import { formatDate } from "../utils/formatDate";
 import { handleSaveBlogs } from "../pages/BlogPage";
 import { useSelector } from "react-redux";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 
 function DisplayBlogs({ blogs }) {
   const { token, id: userId } = useSelector((state) => state.user);
+  const [localBlogs, setLocalBlogs] = useState(blogs);
+
+  const handleSaveToggle = async (e, blogId) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    setLocalBlogs((prev) =>
+      prev.map((blog) => {
+        if (blog._id === blogId) {
+          const alreadySaved = blog.totalSaves.includes(userId);
+
+          return {
+            ...blog,
+            totalSaves: alreadySaved
+              ? blog.totalSaves.filter((id) => id !== userId)
+              : [...blog.totalSaves, userId],
+          };
+        }
+        return blog;
+      }),
+    );
+
+    await handleSaveBlogs(e, blogId, token);
+  };
+
+  useEffect(() => {
+    setLocalBlogs(blogs);
+  }, [blogs]);
 
   return (
     <div>
-      {blogs.length > 0 ? (
-        blogs.map((blog) => (
+      {localBlogs.length > 0 ? (
+        localBlogs.map((blog) => (
           <Link key={blog._id} to={"/blog/" + blog.blogId}>
             <div className="w-full my-10 flex justify-between">
               <div className="w-[60%] flex flex-col gap-2">
@@ -40,7 +68,7 @@ function DisplayBlogs({ blogs }) {
 
                     <div
                       className="cursor-pointer flex gap-2"
-                      onClick={(e) => handleSaveBlogs(e, blog._id, token)}
+                      onClick={(e) => handleSaveToggle(e, blog._id)}
                     >
                       {blog.totalSaves?.some(
                         (id) => id.toString() === userId,
