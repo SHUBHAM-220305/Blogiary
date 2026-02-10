@@ -12,7 +12,7 @@ function HomePage() {
   const [page, setPage] = useState(1);
   const [topTags, setTopTags] = useState([]);
 
-  const { blogs, hasMore } = usePagination("blogs", {}, 3, page);
+  const { blogs, hasMore } = usePagination("blogs", {}, 10, page);
 
   const { token, id: userId } = useSelector((state) => state.user);
 

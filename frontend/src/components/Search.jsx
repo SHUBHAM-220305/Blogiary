@@ -17,7 +17,7 @@ function Search() {
     ? { tag: tag.toLowerCase().replace(/\s+/g, "-") }
     : { search: searchQuery };
 
-  const { blogs, hasMore } = usePagination("search-blogs", query, 3, page);
+  const { blogs, hasMore } = usePagination("search-blogs", query, 10, page);
 
   return (
     <div className="w-full p-5 sm:w-[80%] md:w-[60%] lg:w-[55%] mx-auto">
