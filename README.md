@@ -86,7 +86,7 @@ blogiary/
 │   ├── routes/
 │   ├── utils/
 │   └── server.js
-
+```
 
 ## 🔐 Security & Data Handling
 
