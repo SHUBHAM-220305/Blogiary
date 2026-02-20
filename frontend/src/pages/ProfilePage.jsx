@@ -190,36 +190,43 @@ function ProfilePage() {
               )}
             </div>
             <div className="hidden lg:block">
-              <h2 className="text-lg font-medium my-3">Following</h2>
-              <div className="">
-                {userData.following.map((followingUser) => (
-                  <div key={followingUser._id} className="flex justify-between">
-                    <Link to={`/@${followingUser.username}`}>
-                      <div className="flex gap-3">
-                        <div className="w-6 h-6 cursor-pointer overflow-hidden hover:bg-gray-200 rounded-sm">
-                          <img
-                            src={
-                              followingUser.profilePic
-                                ? followingUser.profilePic
-                                : `https://api.dicebear.com/9.x/initials/svg?seed=${followingUser.name}`
-                            }
-                            alt=""
-                            className="w-full h-full rounded-sm object-contain border"
-                          />
+              {userData.following.length > 0 && (
+                <>
+                  <h2 className="text-lg font-medium my-3">Following</h2>
+                  <div className="">
+                    {userData.following.map((followingUser) => (
+                      <div
+                        key={followingUser._id}
+                        className="flex justify-between"
+                      >
+                        <Link to={`/@${followingUser.username}`}>
+                          <div className="flex gap-3">
+                            <div className="w-6 h-6 cursor-pointer overflow-hidden hover:bg-gray-200 rounded-sm">
+                              <img
+                                src={
+                                  followingUser.profilePic
+                                    ? followingUser.profilePic
+                                    : `https://api.dicebear.com/9.x/initials/svg?seed=${followingUser.name}`
+                                }
+                                alt=""
+                                className="w-full h-full rounded-sm object-contain border"
+                              />
+                            </div>
+
+                            <p className="text-sm text-slate-600 opacity-80 font-normal hover:underline cursor-pointer">
+                              {followingUser.name}
+                            </p>
+                          </div>
+                        </Link>
+
+                        <div className="flex justify-center items-center pb-1 hover:bg-gray-200 w-6 h-6 rounded-sm">
+                          <i className="fi fi-bs-menu-dots cursor-pointer pt-2"></i>
                         </div>
-
-                        <p className="text-sm text-slate-600 opacity-80 font-normal hover:underline cursor-pointer">
-                          {followingUser.name}
-                        </p>
                       </div>
-                    </Link>
-
-                    <div className="flex justify-center items-center pb-1 hover:bg-gray-200 w-6 h-6 rounded-sm">
-                      <i className="fi fi-bs-menu-dots cursor-pointer pt-2"></i>
-                    </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </>
+              )}
             </div>
           </div>
         </div>
