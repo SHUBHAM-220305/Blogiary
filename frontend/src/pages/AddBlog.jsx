@@ -195,30 +195,33 @@ function AddBlog() {
     editorjsRef.current = editor;
   }
 
+  function addTag() {
+    const newTag = tag.trim();
+
+    if (!newTag) return;
+
+    if (blogData.tags.length >= 10) {
+      toast.error("You can add upto maximum 10 tags");
+      return;
+    }
+
+    if (blogData.tags.includes(newTag)) {
+      toast.error("Tag already added");
+      return;
+    }
+
+    setBlogData((prev) => ({
+      ...prev,
+      tags: [...prev.tags, newTag],
+    }));
+
+    setTag("");
+  }
+
   function handleTagKeyDown(e) {
-    if (e.key === "Enter" || e.key === " ") {
+    if (e.key === "Enter") {
       e.preventDefault();
-
-      const newTag = tag.trim();
-
-      if (!newTag) return;
-
-      if (blogData.tags.length >= 10) {
-        toast.error("You can add upto maximum 10 tags");
-        return;
-      }
-
-      if (blogData.tags.includes(newTag)) {
-        toast.error("Tag already added");
-        return;
-      }
-
-      setBlogData((prev) => ({
-        ...prev,
-        tags: [...prev.tags, newTag],
-      }));
-
-      setTag("");
+      addTag();
     }
   }
 
@@ -255,7 +258,6 @@ function AddBlog() {
   ) : (
     <div className="p-5 w-full sm:w-[500px] lg:w-[1000px] mx-auto">
       <div className="lg:flex lg:justify-between gap-10">
-
         <div className="lg:w-3/6">
           <h2 className="text-2xl font-semibold my-2">Image</h2>
           <label htmlFor="image" className="">
@@ -308,15 +310,35 @@ function AddBlog() {
 
           <div className="my-4">
             <h2 className="text-2xl font-semibold my-2">Tags</h2>
-            <input
+            {/* <input
               type="text"
               placeholder="Enter tags for your blog"
               value={tag}
               onChange={(e) => setTag(e.target.value)}
               onKeyDown={handleTagKeyDown}
-              disabled={blogData.tags.length >= 10}
-              className={`border focus:outline-none rounded-lg w-full p-2 placeholder:text-lg ${blogData.tags.length >= 10 ? "opacity-50 cursor-not-allowed" : ""}`}
-            />
+              
+              
+            /> */}
+
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="Enter tags for your blog"
+                value={tag}
+                onChange={(e) => setTag(e.target.value)}
+                onKeyDown={handleTagKeyDown}
+                disabled={blogData.tags.length >= 10}
+                className={`border focus:outline-none rounded-lg w-full p-2 placeholder:text-lg ${blogData.tags.length >= 10 ? "opacity-50 cursor-not-allowed" : ""}`}
+              />
+
+              <button
+                type="button"
+                onClick={addTag}
+                className="bg-black text-white px-4 rounded-lg"
+              >
+                Add
+              </button>
+            </div>
 
             <div className="flex justify-between my-1">
               <p className="text-sm opacity-60 font-medium pl-2">
