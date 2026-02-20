@@ -100,7 +100,7 @@ function ProfilePage() {
 
             <div className="my-4">
               <nav className="my-4">
-                <ul className="flex gap-6 overflow-x-auto whitespace-nowrap">
+                <ul className="flex gap-6 whitespace-nowrap">
                   <li>
                     <Link
                       to={`/${username}`}
